@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Много раз по 36 повторностей</title>
+		
+		<style>
+			td,
+			th{
+				padding-left: 1em;
+				padding-right: 1em;
+			}
+			
+			th{ text-align: left;}
+			
+			#N th{ text-align: center;}
+			
+			#N th:first-child{ text-align: left;}
+			
+			#Exponent th{  padding-right: 0.15em;}
+			
+			td{
+				text-align: right;
+				width: 1em;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<table>
+			<thead  style="font-weight: bold;">
+				<tr  style="color:Blue">
+					<th>Результат&nbsp;:</th>
+				
+					<th  colspan="6">
+						<span id="SuccessNumber"></span> везений из <span id="MaxI"></span> попыток
+					</th>
+				</tr>
+			
+				<tr  id="N">
+					<th>N (шаг)&nbsp;:</th>
+					
+					<th></th> <th></th> <th></th> <th></th> <th></th> <th></th> 
+					<th></th> <th></th> <th></th> <th></th> <th></th> <th></th> 
+				</tr>
+				
+				<tr  id="Exponent">
+					<th><span  id="InitialChainNumber"></span>&nbsp;×&nbsp;<span id="P"></span><sup>N</sup>&nbsp;:</th>
+					
+					<th></th> <th></th> <th></th> <th></th> <th></th> <th></th> 
+					<th></th> <th></th> <th></th> <th></th> <th></th> <th></th> 
+				</tr>
+			</thead>
+			
+			<tbody>
+				<template>
+					<tr>
+						<td  style="font-weight: bold;"></td>
+						
+						<td></td> <td></td> <td></td> <td></td> <td></td> <td></td> 
+						<td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+					</tr>
+				</template>
+			</tbody>
+		</table>
+		
+		<script defer>
+		
+'use strict';
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+///	Параметры.
+
+var  P = 0.68;
+var  MaxI = 1000;  // Столько раз выполняем всё «исследование».
+var  InitialChainNumber = 36;	 // Столько повторностей (chains) в каждом «исследовании».
+var  MaxN = 6;	 // Столько шагов в каждой повторности.
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+///	Заполняем заголовок таблицы.
+
+var  _afExponentFloor = [];
+
+document.querySelector( '#P')	.textContent = P;
+document.querySelector( '#MaxI').textContent = MaxI;
+document.querySelector( '#InitialChainNumber').textContent = InitialChainNumber;
+
+var _aelNCells		  = document.querySelector( '#N')		.children;
+var _aelExponentCells = document.querySelector( '#Exponent').children;
+
+for(  var N = 1;  N <= MaxN;  ++ N)
+{
+	var  fExponentN = InitialChainNumber * Math.pow( P, N);
+	
+	_afExponentFloor[ N] = Math.floor( fExponentN);
+
+	_aelNCells[		   N].textContent = N;
+	_aelExponentCells[ N].textContent = fExponentN.toFixed( 1);
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+///	Выполняем эксперименты.
+
+var  elTBody = document.querySelector( 'tbody');
+var  elRowTemplate = elTBody.querySelector( 'template').content.querySelector( 'tr');
+var  SuccessNumber = 0;
+
+for(  var I = 1;  I <= MaxI;  ++ I)
+{
+	var  elRowI = elTBody.appendChild(  elRowTemplate.cloneNode( true));
+	var  OneDeviationsI = 0;
+
+	for	(	var  N = 1,  ChainNumberN = InitialChainNumber,  ChainNumberNextN
+		;	N <= MaxN
+		;	++ N,  ChainNumberN = ChainNumberNextN
+		)
+	{
+		ChainNumberNextN = 0;
+	
+		for(  var J = 1;  J <= ChainNumberN;  ++ J)
+		{
+			var  MateCopyingNumberJ = 0;
+		
+			for(  var K = 1;  K <= 6;  ++ K)
+			{
+				if( Math.random() < P)
+				{
+					++ MateCopyingNumberJ;
+				}
+			}
+			
+			if( 3 < MateCopyingNumberJ)
+			{
+				++ ChainNumberNextN;
+			}
+		}
+		
+		var  elCellN = elRowI.children[ N];
+		
+		elCellN.textContent = ChainNumberNextN;
+		
+		if	(	_afExponentFloor[ N]	 == ChainNumberNextN  
+			||  _afExponentFloor[ N] + 1 == ChainNumberNextN
+			)
+		{
+			elCellN.style.backgroundColor = 'SpringGreen';
+		}
+		else if(_afExponentFloor[ N] - 1 == ChainNumberNextN
+			||  _afExponentFloor[ N] + 2 == ChainNumberNextN
+			)
+		{
+			elCellN.style.backgroundColor = 'GreenYellow';
+			++ OneDeviationsI;
+			
+			if( 1 < OneDeviationsI)
+			{
+				break;  ///////////////////
+			}
+		}
+		else
+		{
+			break;  ///////////////////
+		}
+	}
+	
+	if( N > MaxN)
+	{
+		++ SuccessNumber;
+	}
+}
+
+document.querySelector( '#SuccessNumber').textContent = SuccessNumber;
+
+
+//
+		</script>	
+	</body>
+</html>
